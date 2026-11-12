@@ -1,0 +1,13 @@
+{
+  "python": "3.12.14",
+  "numpy": "2.3.5",
+  "scipy": "1.17.0",
+  "checks": {
+    "unittest": "8 passed",
+    "compileall": "passed",
+    "example_cli": "passed"
+  },
+  "remote_ci": "not run",
+  "real_world_validation": "not performed",
+  "data": "synthetic only"
+}
