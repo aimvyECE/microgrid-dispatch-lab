@@ -22,6 +22,22 @@ python microgrid.py --output results
 
 The CLI writes `summary.json` (metrics and dispatch) and `dispatch.csv` (auditable time steps). It does not access a network, an account, an API or a real energy device. An example output is committed in `examples/synthetic_day/`.
 
+## Parameter sensitivity, with auditable baselines
+
+```sh
+python sensitivity.py --output results/sensitivity
+```
+
+Explore capacity (0/5/10 kWh), power (2/4 kW), one-way efficiency (0.90/0.95)
+and carbon valuation (0/0.20 EUR per kgCO₂e) in **24 synthetic cases**. Exports
+include exact inputs, solver-library versions and matching no-storage baselines.
+The sweep starts and ends at zero SOC, so its results are intentionally not
+identical to the original half-full-battery example. See
+[the experiment guide](docs/EXPERIMENTS.md) and [committed sample CSV](examples/sensitivity/sensitivity.csv).
+
+This is operational sensitivity, not investment sizing. No payback or real-world
+savings forecast is inferred from the synthetic day.
+
 ## Model
 
 For each interval t, all flows below are **energy in kWh**, not power:
@@ -66,7 +82,7 @@ These bill values exclude the throughput proxy, capital costs, taxes and fixed n
 
 This initial prototype was developed with AI assistance. It has not been deployed for a client, independently reviewed or validated against metered data. There is no claim of historical adoption or previous contributions. Dependencies are NumPy and SciPy; no third-party source code or model weights were copied into this repository.
 
-Verified locally with NumPy/SciPy installed in the execution environment. CI configuration is supplied but its remote execution is **not yet verified**. Users should reproduce the tests in their own environment.
+The initial published version passed [GitHub Actions](https://github.com/aimvyECE/microgrid-dispatch-lab/actions/runs/43315182391). The workflow tests Python 3.10 and 3.12; check the latest run for the current revision. Users should also reproduce tests in their own environment.
 
 ## References
 
