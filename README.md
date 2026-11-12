@@ -38,6 +38,32 @@ identical to the original half-full-battery example. See
 This is operational sensitivity, not investment sizing. No payback or real-world
 savings forecast is inferred from the synthetic day.
 
+## Forecast-signal regret: stress-test the optimizer's assumptions
+
+```sh
+python forecast_regret.py --output results/forecast_regret.json
+```
+
+A schedule that looks optimal under announced tariffs need not perform well
+when those signals change. This experiment fixes demand/PV (still perfectly
+known), optimizes against forecast price/carbon signals, then **scores that same
+feasible schedule using realized signals**. It reports objective regret against
+a hindsight lower bound and savings or losses against no storage. Both scores
+include the identical throughput proxy and carbon valuation.
+
+Four deterministic synthetic stress cases include a peak shifted four hours
+early/late. In the committed example the late peak forecast loses about
+**EUR 0.704 of objective value** against hindsight. The other three cases tie
+within numerical precision: inaccurate signals do not necessarily alter a
+schedule. These are scenario outcomes, NOT probabilities, expected monthly
+benefit or real-world savings. A constructed test shows a wrong tariff can
+make storage worse than no storage.
+
+The output retains exact inputs, forecasts, both dispatches and dependency
+versions. This deliberately isolates **price/carbon information risk**; it is
+not rolling-horizon control, stochastic optimization, or a repair method for
+load/PV forecast errors. Initial and final storage remain zero in this example.
+
 ## Model
 
 For each interval t, all flows below are **energy in kWh**, not power:
@@ -71,7 +97,7 @@ These bill values exclude the throughput proxy, capital costs, taxes and fixed n
 
 ## Limitations that matter
 
-- Perfect foresight and a single electrical bus; no forecasting error or network physics.
+- Single electrical bus; demand/PV have perfect foresight. Signal-only forecast stress is available separately; no demand/PV forecast error or network physics.
 - No grid import limit, outage model, reserves, thermal constraints or AC power-flow study.
 - No battery investment optimization, aging calibration, tariff subscriptions or seasonal analysis.
 - Operational grid emissions only: no lifecycle embodied carbon, marginal emissions estimation or avoided-emissions claim.
