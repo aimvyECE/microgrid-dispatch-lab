@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import numpy as np
 from scipy.optimize import linprog
+from scipy.sparse import lil_matrix
 
 @dataclass(frozen=True)
 class Battery:
@@ -46,7 +47,9 @@ def solve(load, pv, price, carbon, battery=Battery(), carbon_price=0.0, hours=1.
     objective = np.zeros(5*n)
     objective[:n] = price + carbon_price*carbon
     objective[n:3*n] = battery.throughput_eur_kwh
-    matrix = np.zeros((2*n+1, 5*n))
+    # Only 8*n equality coefficients are nonzero. Avoid quadratic
+    # memory growth for longer horizons; HiGHS accepts sparse constraints.
+    matrix = lil_matrix((2*n+1, 5*n), dtype=float)
     rhs = np.zeros(2*n+1)
     for t in range(n):
         matrix[t, t] = 1
@@ -63,6 +66,7 @@ def solve(load, pv, price, carbon, battery=Battery(), carbon_price=0.0, hours=1.
             rhs[n+t] = battery.capacity_kwh*battery.initial_fraction
     matrix[-1, -1] = 1
     rhs[-1] = battery.capacity_kwh*battery.initial_fraction
+    matrix = matrix.tocsr()
     bounds = ([(0, None)]*n + [(0, battery.power_kw*hours)]*(2*n)
               + [(0, float(v)) for v in pv] + [(0, battery.capacity_kwh)]*n)
     result = linprog(objective, A_eq=matrix, b_eq=rhs, bounds=bounds, method='highs')

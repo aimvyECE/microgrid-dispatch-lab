@@ -80,6 +80,8 @@ The objective is:
 
 Prices are EUR/kWh; intensity is kgCO₂e/kWh; the carbon valuation is EUR/kgCO₂e. The default 0.95 efficiency is **one-way**, giving 90.25% round-trip efficiency. Grid charging is permitted. Grid exports are not permitted; excess solar can be curtailed. The throughput penalty is only an illustrative degradation proxy, not a calibrated battery lifetime model.
 
+Equality constraints use a sparse CSR matrix with `8 × number_of_intervals` stored coefficients, rather than a dense `(2n+1) × 5n` array. This reduces constraint-assembly memory from quadratic to linear in horizon length; it does **not** guarantee linear solver runtime or validate annual forecasts. Tests compare sparse and dense HiGHS objectives and check one-interval and week-long cases.
+
 The formulation is a linear program solved by SciPy's HiGHS backend. It does not include a binary constraint forbidding simultaneous charging and discharging. Positive throughput costs, nonnegative energy/carbon prices and free PV curtailment discourage cycling under the supported assumptions; do not extend to negative prices or export incentives without revisiting this relaxation.
 
 ## Illustrative result
